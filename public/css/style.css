@@ -1,0 +1,173 @@
+/* Global custom styling for Nettech Help Desk */
+:root {
+  --primary-color: #0d6efd;
+  --primary-hover: #0b5ed7;
+  --dark-bg: #0f172a;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --card-border-radius: 12px;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+main {
+  flex: 1;
+}
+
+.navbar {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.brand-text {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.card {
+  border-radius: var(--card-border-radius);
+  border: 1px solid #e2e8f0;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge styling */
+.badge-status-open {
+  background-color: #0dcaf0;
+  color: #000;
+}
+
+.badge-status-in_progress {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.badge-status-resolved {
+  background-color: #198754;
+  color: #fff;
+}
+
+.badge-status-closed {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.badge-priority-low {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
+.badge-priority-medium {
+  background-color: #fff3cd;
+  color: #664d03;
+  border: 1px solid #ffecb5;
+}
+
+.badge-priority-high {
+  background-color: #f8d7da;
+  color: #842029;
+  border: 1px solid #f5c2c7;
+}
+
+/* Profile avatar */
+.avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-lg {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #0d6efd;
+}
+
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.avatar-placeholder-lg {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 600;
+  border: 3px solid #0d6efd;
+}
+
+/* Toast container */
+.toast-container {
+  z-index: 1090;
+}
+
+/* Responsive tables & wrappers */
+.table-responsive {
+  border-radius: var(--card-border-radius);
+  overflow-x: auto;
+}
+
+/* Spinner overlay for loading states */
+.loading-spinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgba(13, 110, 253, 0.2);
+  border-radius: 50%;
+  border-top-color: #0d6efd;
+  animation: spin 0.8s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state container */
+.empty-state {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #94a3b8;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 576px) {
+  .dashboard-stat-card .card-body {
+    padding: 1rem;
+  }
+  .table th, .table td {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+}

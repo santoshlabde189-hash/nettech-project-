@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Tickets - Nettech Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+  <!-- Admin Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/admin/dashboard.html">
+        <i class="bi bi-shield-check text-primary"></i>
+        <span>Nettech Help Desk <span class="badge bg-primary fs-6 fw-normal ms-1">Admin</span></span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="adminNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/dashboard.html">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active fw-semibold" href="/admin/tickets.html">Manage Tickets</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/user/profile.html">Admin Profile</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-3">
+          <img id="navbarAvatar" src="" class="avatar-img d-none" alt="Profile">
+          <span class="text-white small fw-medium" id="navbarUserDisplay">Admin</span>
+          <button id="logoutBtn" class="btn btn-outline-light btn-sm px-3">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <h2 class="fw-bold mb-1">Manage All Support Tickets</h2>
+        <p class="text-muted mb-0">Update lifecycle status, search, and manage corporate service requests.</p>
+      </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" id="adminSearchInput" class="form-control" placeholder="Search title, description, or ticket ID...">
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-3">
+            <select id="adminStatusFilter" class="form-select">
+              <option value="all">All Statuses</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-2">
+            <select id="adminPriorityFilter" class="form-select">
+              <option value="all">All Priorities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-grid">
+            <button id="adminResetBtn" class="btn btn-outline-secondary">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" class="ps-4">Ticket ID</th>
+                <th scope="col">Requester</th>
+                <th scope="col">Title</th>
+                <th scope="col">Category</th>
+                <th scope="col">Priority</th>
+                <th scope="col">Status</th>
+                <th scope="col">Created Date</th>
+                <th scope="col" class="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminTicketsTbody">
+              <tr>
+                <td colspan="8" class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status"></div>
+                  <p class="small text-muted mt-2 mb-0">Loading all tickets...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Status Update Modal -->
+  <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold" id="statusModalLabel">Update Ticket Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="mb-1 text-muted small">Ticket: <strong id="statusModalTicketTitle" class="text-dark"></strong></p>
+          <p class="mb-3 text-muted small">Requester: <span id="statusModalRequester"></span></p>
+
+          <div class="mb-3">
+            <label for="newStatusSelect" class="form-label fw-semibold">Select New Status</label>
+            <select id="newStatusSelect" class="form-select">
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <div class="form-text">
+            Changing status will automatically send an email alert to the user if SMTP is configured.
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="confirmStatusUpdateBtn" class="btn btn-primary btn-sm px-3 fw-semibold">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold" id="deleteModalLabel">Confirm Ticket Deletion</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 text-center">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-2 d-block"></i>
+          <h5 class="fw-bold mb-2">Are you sure?</h5>
+          <p class="text-muted mb-0">
+            You are about to permanently delete ticket <strong id="deleteModalTicketTitle"></strong>. This action cannot be undone.
+          </p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="confirmDeleteBtn" class="btn btn-danger px-4 fw-semibold">Delete Permanently</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket View Modal -->
+  <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold" id="viewModalLabel">Ticket Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-secondary font-monospace" id="viewModalId"></span>
+            <div id="viewModalBadges" class="d-flex gap-2"></div>
+          </div>
+          <h5 class="fw-bold mb-1" id="viewModalTitle"></h5>
+          <p class="text-muted small mb-2" id="viewModalCategory"></p>
+          <p class="text-muted small mb-3">Raised by: <strong id="viewModalUser" class="text-dark"></strong></p>
+          <div class="p-3 bg-light rounded-3 mb-3">
+            <h6 class="fw-semibold small text-uppercase text-secondary mb-2">Description</h6>
+            <p class="mb-0 text-break" id="viewModalDescription" style="white-space: pre-wrap;"></p>
+          </div>
+          <div class="text-muted small">
+            Created: <span id="viewModalCreated" class="fw-medium"></span>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-white border-top py-3 text-center text-muted small mt-auto">
+    <div class="container">&copy; 2026 Nettech Help Desk Management System (Admin Console).</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    if (!checkPageAuth('admin')) {
+      // redirected
+    }
+
+    setupNavbar();
+
+    const searchInput = document.getElementById('adminSearchInput');
+    const statusFilter = document.getElementById('adminStatusFilter');
+    const priorityFilter = document.getElementById('adminPriorityFilter');
+    const resetBtn = document.getElementById('adminResetBtn');
+    const tbody = document.getElementById('adminTicketsTbody');
+
+    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    const viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
+
+    let allTickets = [];
+    let activeTicketId = null;
+
+    async function loadTickets() {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="small text-muted mt-2 mb-0">Searching tickets...</p>
+          </td>
+        </tr>
+      `;
+
+      const search = searchInput.value.trim();
+      const status = statusFilter.value;
+      const priority = priorityFilter.value;
+
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (status && status !== 'all') params.append('status', status);
+      if (priority && priority !== 'all') params.append('priority', priority);
+
+      try {
+        const queryStr = params.toString() ? `?${params.toString()}` : '';
+        const tickets = await apiFetch(`/tickets${queryStr}`);
+        allTickets = tickets;
+        renderAdminTickets(tickets);
+      } catch (err) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center text-danger py-4">
+              <i class="bi bi-exclamation-triangle fs-2 d-block mb-2"></i>
+              Error fetching tickets: ${err.message}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderAdminTickets(tickets) {
+      if (tickets.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
+              No tickets matched the specified criteria.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = tickets.map(t => `
+        <tr>
+          <td class="ps-4 font-monospace small">#${t._id.slice(-6)}</td>
+          <td>
+            <div class="fw-semibold">${t.user ? t.user.name : 'Unknown'}</div>
+            <div class="small text-muted">${t.user ? t.user.email : '-'}</div>
+          </td>
+          <td class="fw-semibold text-truncate" style="max-width: 200px;">${t.title}</td>
+          <td><span class="badge bg-light text-dark border">${t.category}</span></td>
+          <td>${getPriorityBadge(t.priority)}</td>
+          <td>${getStatusBadge(t.status)}</td>
+          <td class="small text-muted">${formatDate(t.createdAt)}</td>
+          <td class="text-end pe-4">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary view-btn" data-id="${t._id}" title="View Details">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-outline-primary status-btn" data-id="${t._id}" title="Update Status">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-outline-danger delete-btn" data-id="${t._id}" title="Delete Ticket">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Attach event listeners
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          const ticket = allTickets.find(t => t._id === id);
+          if (ticket) {
+            document.getElementById('viewModalId').textContent = '#' + ticket._id;
+            document.getElementById('viewModalTitle').textContent = ticket.title;
+            document.getElementById('viewModalCategory').textContent = 'Category: ' + ticket.category;
+            document.getElementById('viewModalUser').textContent = ticket.user ? `${ticket.user.name} (${ticket.user.email})` : 'Unknown';
+            document.getElementById('viewModalDescription').textContent = ticket.description;
+            document.getElementById('viewModalCreated').textContent = formatDate(ticket.createdAt);
+            document.getElementById('viewModalBadges').innerHTML = `
+              ${getPriorityBadge(ticket.priority)}
+              ${getStatusBadge(ticket.status)}
+            `;
+            viewModal.show();
+          }
+        });
+      });
+
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          const ticket = allTickets.find(t => t._id === id);
+          if (ticket) {
+            activeTicketId = id;
+            document.getElementById('statusModalTicketTitle').textContent = ticket.title;
+            document.getElementById('statusModalRequester').textContent = ticket.user ? ticket.user.name : 'Unknown';
+            document.getElementById('newStatusSelect').value = ticket.status;
+            statusModal.show();
+          }
+        });
+      });
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          const ticket = allTickets.find(t => t._id === id);
+          if (ticket) {
+            activeTicketId = id;
+            document.getElementById('deleteModalTicketTitle').textContent = `"${ticket.title}" (#${ticket._id.slice(-6)})`;
+            deleteModal.show();
+          }
+        });
+      });
+    }
+
+    // Status update handler
+    document.getElementById('confirmStatusUpdateBtn').addEventListener('click', async () => {
+      if (!activeTicketId) return;
+      const newStatus = document.getElementById('newStatusSelect').value;
+      const btn = document.getElementById('confirmStatusUpdateBtn');
+
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Updating...';
+
+        await apiFetch(`/tickets/${activeTicketId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        statusModal.hide();
+        showToast('Status updated successfully!', 'success');
+        loadTickets();
+      } catch (err) {
+        showToast(err.message || 'Failed to update status', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+      }
+    });
+
+    // Delete confirmation handler
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+      if (!activeTicketId) return;
+      const btn = document.getElementById('confirmDeleteBtn');
+
+      try {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Deleting...';
+
+        await apiFetch(`/tickets/${activeTicketId}`, {
+          method: 'DELETE'
+        });
+
+        deleteModal.hide();
+        showToast('Ticket deleted successfully!', 'success');
+        loadTickets();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete ticket', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Delete Permanently';
+      }
+    });
+
+    // Debounced search
+    let debounceTimer;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(loadTickets, 350);
+    });
+
+    statusFilter.addEventListener('change', loadTickets);
+    priorityFilter.addEventListener('change', loadTickets);
+
+    resetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      statusFilter.value = 'all';
+      priorityFilter.value = 'all';
+      loadTickets();
+    });
+
+    loadTickets();
+  </script>
+</body>
+</html>
